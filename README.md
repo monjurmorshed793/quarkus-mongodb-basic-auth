@@ -1,9 +1,9 @@
-## Quarkus Basic Authentication using MongoDB
+# Quarkus Basic Authentication using MongoDB
 
-# Introduction
+## Introduction
 Quarkus is a great and modern java based framework. Quarkus has a great document in https://quarkus.io . In the guides, security related guides are provided for JPA only. But other document based databases can be also used for basic authentication. In this blog, we are going to see how to create a basic authentication using Quarkus and MongoDb. Though we are showing here examples using MongoDb database, other document based databases can be used following the same procedure. 
 
-# Dependencies
+## Dependencies
 We need to have the following dependencies for our example:
 
 
@@ -32,7 +32,7 @@ We need to have the following dependencies for our example:
 
 quarkus-rectesy-reactive-jackson is required for exposing the rest services, quarkus-mongodb-panache is required for using mongodb along with panache query system, quarkus-security is required for declaring custom identity provider (for authentication purpose) and quarkus-elytron-security-properties is required for hashing plain password.
 
-# Configuring Properties file
+## Configuring Properties file
 We my set up our mongo instances by installing mongodb in our local system or using docker. But here we are going to use MongoDb as dev services which is provided by Quarkus by default. Just we need to mention these properties in the application.properties file.
 
 quarkus.mongodb.devservices.enabled=true
@@ -43,7 +43,7 @@ quarkus.mongodb.database=TopicLabeling
 
 Here we enabling the mongodb dev services using mongo docker image and assigning port and Database name. 
 
-# Model
+## Model
 For our example, we declare a User entity using the following procedure.
 
 import java.util.Optional;
@@ -80,7 +80,7 @@ public class User extends PanacheMongoEntity {
  
 Here we are declaring two methods, add is used for adding a new user and getByUsername is used for fetching the username specific information.
 
-# Security IdentityProvider
+## Security IdentityProvider
 In order to handle the basic authentication, we need to implement IdentityProvider  interface and the IndentityProvider must be of type AuthenticationRequest. As we are going to validate username and password provided in the basic auth, so we are going to use the UsernamePasswordAuthenticationReqeust (implementation of AuthenticationRequest interface). We name our custom IdentityProvider as ApplicationIdentityProvider and the initial structure looks like as:
 
 import java.util.Optional;
@@ -153,7 +153,7 @@ authenticate method is responsible for validating the username and password. The
 
 The implementation is pretty straight forward. Here we are first fetching our existing user. If the username related information is not found, then we through an exception (Username not found). If user is found then we validate the password using BcryptUtil.matches method. If the matching is passed, then we pass SecurityIdentity by using QuarkusSecurityIdentity.builder() method. Here the default implementation uses the reactive approach (Uni), so we used Uni.createFrom().item(QuarkusSecurityIdentity.builder.build()).
 
-# Testing
+## Testing
 Here, we are not going to run any Unit tests or Integration tests, rather we will create an authenticated rest end point and test the endpoint whether the endpoint is accessible using the basic auth or not. First, we need to define a rest endpoint. I am going to use the following resource for testing.
 
 import javax.ws.rs.GET;
