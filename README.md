@@ -201,8 +201,7 @@ public class Startup {
     }
 }
 ```
-Now, we need to call the api using Postman. The postman-test scenario is shown in the following image.
-
+Now, the api (http://localhost:8080) can be accessed using basic auth (username an dpassword).
 
 
 So, using the above mentioned steps, we can easily create a mongodb based authentication system using Quarkus.
