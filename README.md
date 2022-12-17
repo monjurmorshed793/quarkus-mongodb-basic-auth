@@ -7,7 +7,7 @@ Quarkus is a great and modern java based framework. Quarkus has a great document
 We need to have the following dependencies for our example:
 
 
- 
+ ```
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
@@ -28,24 +28,24 @@ We need to have the following dependencies for our example:
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-elytron-security-properties-file</artifactId>
     </dependency>
-
+```
 
 quarkus-rectesy-reactive-jackson is required for exposing the rest services, quarkus-mongodb-panache is required for using mongodb along with panache query system, quarkus-security is required for declaring custom identity provider (for authentication purpose) and quarkus-elytron-security-properties is required for hashing plain password.
 
 ## Configuring Properties file
 We my set up our mongo instances by installing mongodb in our local system or using docker. But here we are going to use MongoDb as dev services which is provided by Quarkus by default. Just we need to mention these properties in the application.properties file.
-
+```
 quarkus.mongodb.devservices.enabled=true
 quarkus.mongodb.devservices.image-name=mongo
 quarkus.mongodb.devservices.port=27017
 quarkus.mongodb.database=TopicLabeling
-
+```
 
 Here we enabling the mongodb dev services using mongo docker image and assigning port and Database name. 
 
 ## Model
 For our example, we declare a User entity using the following procedure.
-
+```
 import java.util.Optional;
 import java.util.Set;
 
@@ -76,13 +76,13 @@ public class User extends PanacheMongoEntity {
         return User.find("username", username).singleResultOptional();
     }
 }
-
+```
  
 Here we are declaring two methods, add is used for adding a new user and getByUsername is used for fetching the username specific information.
 
 ## Security IdentityProvider
 In order to handle the basic authentication, we need to implement IdentityProvider  interface and the IndentityProvider must be of type AuthenticationRequest. As we are going to validate username and password provided in the basic auth, so we are going to use the UsernamePasswordAuthenticationReqeust (implementation of AuthenticationRequest interface). We name our custom IdentityProvider as ApplicationIdentityProvider and the initial structure looks like as:
-
+```
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -117,18 +117,19 @@ public class ApplicationIdentityProvider implements IdentityProvider<UsernamePas
     }
    
 }
-
+```
 
 
 First we need to getRequestType() method return type as UsernamePasswordAuthenticationRequest.class. So the method now looks like this:
+```
     @Override
     public Class<UsernamePasswordAuthenticationRequest> getRequestType() {
         return UsernamePasswordAuthenticationRequest.class;
     }
-
+```
 
 authenticate method is responsible for validating the username and password. The request parameter contains username and password sent in the basic auth request. We need to validate the provided password with the existing hashed password. After adding the features, our authenticate method looks like this:
-
+```
     @Override
     public Uni<SecurityIdentity> authenticate(UsernamePasswordAuthenticationRequest request,
             AuthenticationRequestContext context) {
@@ -150,12 +151,12 @@ authenticate method is responsible for validating the username and password. The
         }
         throw new AuthenticationFailedException("Username not found");
     }
-
+```
 The implementation is pretty straight forward. Here we are first fetching our existing user. If the username related information is not found, then we through an exception (Username not found). If user is found then we validate the password using BcryptUtil.matches method. If the matching is passed, then we pass SecurityIdentity by using QuarkusSecurityIdentity.builder() method. Here the default implementation uses the reactive approach (Uni), so we used Uni.createFrom().item(QuarkusSecurityIdentity.builder.build()).
 
 ## Testing
 Here, we are not going to run any Unit tests or Integration tests, rather we will create an authenticated rest end point and test the endpoint whether the endpoint is accessible using the basic auth or not. First, we need to define a rest endpoint. I am going to use the following resource for testing.
-
+```
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -173,11 +174,11 @@ public class GreetingResource {
         return "Hello from RESTEasy Reactive";
     }
 }
-
+```
 Note here that we added @Authenticated annotation in the class so the resource or endpoint (“http://localhost:8080/hello”) is now an authenticated endpoint and we need basic auth for accessing the api. 
 
 Before testing through postman, we need to insert an user. So we added the following class so that if no user data is found, then an user will be added in the database. Here we used the StartupEvent for running the startup codes. 
-
+```
 import java.util.HashSet;
 import java.util.Set;
 
@@ -199,7 +200,7 @@ public class Startup {
         }
     }
 }
-
+```
 Now, we need to call the api using Postman. The postman-test scenario is shown in the following image.
 
 
